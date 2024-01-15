@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:network_file_cached/src/io.dart';
@@ -36,6 +38,8 @@ class NetworkFileCached {
     return _instance!;
   }
 
+  static late String _urlKey;
+
   /// Initialize [NetworkFileCached] by giving it a expired duration.
   static Future<NetworkFileCached> init({Duration expired = const Duration(hours: 12)}) async {
     assert(!expired.isNegative);
@@ -61,8 +65,8 @@ class NetworkFileCached {
     }
 
     _url = url;
-
-    _record = _box?.get(url);
+    _urlKey = sha256.convert(utf8.encode(_url)).toString();
+    _record = _box?.get(_urlKey);
 
     if (_record == null) {
       debugPrint('$tag = Downloading... Create a new cache');
@@ -85,15 +89,15 @@ class NetworkFileCached {
   /// Put meta data to box.
   Future<void> _downloadAndPut(void Function(int, int)? onReceiveProgress) async {
     String path = await IO.downloadFile(_url, onReceiveProgress: onReceiveProgress);
-    _record = CacheRecord(_url, path, DateTime.now());
-    await _box?.put(_url, _record);
+    _record = CacheRecord(_urlKey, path, DateTime.now());
+    await _box?.put(_urlKey, _record);
   }
 
   /// Delete the local file and meta data record from box.
   Future<void> _deleteCache(void Function(int, int)? onReceiveProgress) async {
     debugPrint('$tag = Some cache has expired, update cache');
-    CacheRecord oldValue = _box?.get(_url);
-    await _box?.delete(_url);
+    CacheRecord oldValue = _box?.get(_urlKey);
+    await _box?.delete(_urlKey);
     await _downloadAndPut(onReceiveProgress);
     try {
       await File(oldValue.path).delete();

@@ -5,9 +5,7 @@ import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:network_file_cached/network_file_cached.dart';
 
 void main() async {
-  await NetworkFileCached.init(
-    expired: const Duration(seconds: 5),
-  );
+  await NetworkFileCached.init();
 
   runApp(
     const MaterialApp(
@@ -19,7 +17,8 @@ void main() async {
 class FileCache extends StatelessWidget {
   const FileCache({super.key});
 
-  final String url = 'https://s.id/1zvyC';
+  final String url =
+      'https://s3.dtp.net.id/homedev/purchasing/prf/2019d9dc32ee6e07ce85f83468221bb2.pdf?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=xJhZRsOU1JXvyhoS%2F20240115%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240115T073221Z&X-Amz-SignedHeaders=host&X-Amz-Expires=600&X-Amz-Signature=7c8c6b556dd53ef0e48b80acfe686bd4b4e3addcfb314d6f1efa5122cb3555f8';
 
   @override
   Widget build(BuildContext context) {
@@ -112,8 +111,7 @@ class FileCacheLoadingIndicator extends StatefulWidget {
   final String url;
 
   @override
-  State<FileCacheLoadingIndicator> createState() =>
-      _FileCacheLoadingIndicatorState();
+  State<FileCacheLoadingIndicator> createState() => _FileCacheLoadingIndicatorState();
 }
 
 class _FileCacheLoadingIndicatorState extends State<FileCacheLoadingIndicator> {
