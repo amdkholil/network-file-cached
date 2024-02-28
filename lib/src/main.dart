@@ -65,6 +65,8 @@ class NetworkFileCached {
       throw Exception('NetworkFileCached must be initialized first. \nNetworkFileCached.init()');
     }
 
+    if (headers != null) debugPrint(jsonEncode(headers));
+
     _url = url;
     _urlKey = sha256.convert(utf8.encode(_url)).toString();
     _record = _box?.get(_urlKey);
