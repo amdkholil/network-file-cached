@@ -59,7 +59,8 @@ class NetworkFileCached {
   /// Download the file with default http method is "GET",
   /// [url] is the file url.
   /// [onReceiveProgress] is the callback to listen downloading progress.
-  static Future<File> downloadFile(String url, {void Function(int, int)? onReceiveProgress}) async {
+  static Future<File> downloadFile(String url,
+      {void Function(int, int)? onReceiveProgress, Map<String, String>? headers}) async {
     if (_instance == null) {
       throw Exception('NetworkFileCached must be initialized first. \nNetworkFileCached.init()');
     }
@@ -70,14 +71,14 @@ class NetworkFileCached {
 
     if (_record == null) {
       debugPrint('$tag = Downloading... Create a new cache');
-      await instance._downloadAndPut(onReceiveProgress);
+      await instance._downloadAndPut(onReceiveProgress, headers: headers);
       debugPrint('$tag = New cache has been created');
     } else if (_record != null && _record!.createdAt.add(instance._expired).isBefore(DateTime.now())) {
       await instance._deleteCache(onReceiveProgress);
     }
 
     if (!await File(_record!.path).exists()) {
-      await instance._downloadAndPut(onReceiveProgress);
+      await instance._downloadAndPut(onReceiveProgress, headers: headers);
     }
 
     debugPrint('$tag = Cache loaded');
@@ -87,18 +88,18 @@ class NetworkFileCached {
 
   /// Download the file and save it in local.
   /// Put meta data to box.
-  Future<void> _downloadAndPut(void Function(int, int)? onReceiveProgress) async {
-    String path = await IO.downloadFile(_url, onReceiveProgress: onReceiveProgress);
+  Future<void> _downloadAndPut(void Function(int, int)? onReceiveProgress, {Map<String, String>? headers}) async {
+    String path = await IO.downloadFile(_url, onReceiveProgress: onReceiveProgress, headers: headers);
     _record = CacheRecord(_urlKey, path, DateTime.now());
     await _box?.put(_urlKey, _record);
   }
 
   /// Delete the local file and meta data record from box.
-  Future<void> _deleteCache(void Function(int, int)? onReceiveProgress) async {
+  Future<void> _deleteCache(void Function(int, int)? onReceiveProgress, {Map<String, String>? headers}) async {
     debugPrint('$tag = Some cache has expired, update cache');
     CacheRecord oldValue = _box?.get(_urlKey);
     await _box?.delete(_urlKey);
-    await _downloadAndPut(onReceiveProgress);
+    await _downloadAndPut(onReceiveProgress, headers: headers);
     try {
       await File(oldValue.path).delete();
       debugPrint('$tag = Cache has been updated, old cache deleted');

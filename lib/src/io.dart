@@ -10,7 +10,7 @@ class IO {
   /// [urlPath] is the file url.
   /// [onReceiveProgress] is the callback to listen downloading progress.
   static Future<String> downloadFile(String urlPath,
-      {void Function(int, int)? onReceiveProgress}) async {
+      {void Function(int, int)? onReceiveProgress, Map<String, String>? headers}) async {
     Dio dio = Dio();
 
     try {
@@ -21,6 +21,7 @@ class IO {
         savePath,
         onReceiveProgress: onReceiveProgress,
         deleteOnError: true,
+        options: Options(headers: headers),
       );
 
       return await Mime.changeExtensionFile(savePath);
@@ -42,10 +43,8 @@ class IO {
 
   /// Creates random string for downloaded file name.
   static String getRandomString() {
-    const chars =
-        'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+    const chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
 
-    return String.fromCharCodes(Iterable.generate(
-        25, (_) => chars.codeUnitAt(Random().nextInt(chars.length))));
+    return String.fromCharCodes(Iterable.generate(25, (_) => chars.codeUnitAt(Random().nextInt(chars.length))));
   }
 }
