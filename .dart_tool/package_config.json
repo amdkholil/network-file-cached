@@ -524,13 +524,13 @@
       "languageVersion": "3.4"
     },
     {
-      "name": "network_file_cached",
+      "name": "network_file_cacher",
       "rootUri": "../",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     }
   ],
-  "generated": "2025-01-08T03:59:46.129868Z",
+  "generated": "2025-01-08T04:15:57.994541Z",
   "generator": "pub",
   "generatorVersion": "3.5.3",
   "flutterRoot": "file:///home/kholil/ext4/App/flutter",

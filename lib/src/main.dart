@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:network_file_cached/src/io.dart';
-import 'package:network_file_cached/src/record.dart';
+import 'package:network_file_cacher/src/io.dart';
+import 'package:network_file_cacher/src/record.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// Download file from network with caching functionality
@@ -33,7 +33,8 @@ class NetworkFileCached {
   /// Returns an instance using the default [NetworkFileCached].
   static NetworkFileCached get instance {
     if (_instance == null) {
-      throw Exception('NetworkFileCached must be initialized first. \nNetworkFileCached.init()');
+      throw Exception(
+          'NetworkFileCached must be initialized first. \nNetworkFileCacher.init()');
     }
     return _instance!;
   }
@@ -41,7 +42,8 @@ class NetworkFileCached {
   static late String _urlKey;
 
   /// Initialize [NetworkFileCached] by giving it a expired duration.
-  static Future<NetworkFileCached> init({Duration expired = const Duration(hours: 12)}) async {
+  static Future<NetworkFileCached> init(
+      {Duration expired = const Duration(hours: 12)}) async {
     assert(!expired.isNegative);
 
     WidgetsFlutterBinding.ensureInitialized();
@@ -60,9 +62,11 @@ class NetworkFileCached {
   /// [url] is the file url.
   /// [onReceiveProgress] is the callback to listen downloading progress.
   static Future<File> downloadFile(String url,
-      {void Function(int, int)? onReceiveProgress, Map<String, String>? headers}) async {
+      {void Function(int, int)? onReceiveProgress,
+      Map<String, String>? headers}) async {
     if (_instance == null) {
-      throw Exception('NetworkFileCached must be initialized first. \nNetworkFileCached.init()');
+      throw Exception(
+          'NetworkFileCached must be initialized first. \nNetworkFileCached.init()');
     }
 
     if (headers != null) debugPrint(jsonEncode(headers));
@@ -75,7 +79,8 @@ class NetworkFileCached {
       debugPrint('$tag = Downloading... Create a new cache');
       await instance._downloadAndPut(onReceiveProgress, headers: headers);
       debugPrint('$tag = New cache has been created');
-    } else if (_record != null && _record!.createdAt.add(instance._expired).isBefore(DateTime.now())) {
+    } else if (_record != null &&
+        _record!.createdAt.add(instance._expired).isBefore(DateTime.now())) {
       await instance._deleteCache(onReceiveProgress);
     }
 
@@ -90,14 +95,17 @@ class NetworkFileCached {
 
   /// Download the file and save it in local.
   /// Put meta data to box.
-  Future<void> _downloadAndPut(void Function(int, int)? onReceiveProgress, {Map<String, String>? headers}) async {
-    String path = await IO.downloadFile(_url, onReceiveProgress: onReceiveProgress, headers: headers);
+  Future<void> _downloadAndPut(void Function(int, int)? onReceiveProgress,
+      {Map<String, String>? headers}) async {
+    String path = await IO.downloadFile(_url,
+        onReceiveProgress: onReceiveProgress, headers: headers);
     _record = CacheRecord(_urlKey, path, DateTime.now());
     await _box?.put(_urlKey, _record);
   }
 
   /// Delete the local file and meta data record from box.
-  Future<void> _deleteCache(void Function(int, int)? onReceiveProgress, {Map<String, String>? headers}) async {
+  Future<void> _deleteCache(void Function(int, int)? onReceiveProgress,
+      {Map<String, String>? headers}) async {
     debugPrint('$tag = Some cache has expired, update cache');
     CacheRecord oldValue = _box?.get(_urlKey);
     await _box?.delete(_urlKey);

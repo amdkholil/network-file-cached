@@ -27,3 +27,8 @@
 ## 0.0.7
 
 * Fix: Unknown hive register adapter
+
+## 1.0.0 
+
+* add header
+* fix for long url (specialy for S3 url)

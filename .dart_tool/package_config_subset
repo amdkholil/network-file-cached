@@ -346,7 +346,7 @@ flutter_test
 3.3
 file:///home/kholil/ext4/App/flutter/packages/flutter_test/
 file:///home/kholil/ext4/App/flutter/packages/flutter_test/lib/
-network_file_cached
+network_file_cacher
 3.0
 file:///home/kholil/ext4/learn/flutter/network-file-cached/
 file:///home/kholil/ext4/learn/flutter/network-file-cached/lib/
