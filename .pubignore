@@ -1,0 +1,5 @@
+# Ignore directories/files for pub package archive
+.dart_tool/
+.fvm/
+build/
+.gitignore
