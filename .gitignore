@@ -1,1 +1,8 @@
-.fvm/flutter_sdk
+# Flutter / Dart build outputs
+.dart_tool/
+.fvm/
+build/
+
+# Miscellaneous
+*.directory
+.DS_Store

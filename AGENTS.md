@@ -4,7 +4,7 @@
 Flutter package for caching network files using `dio` and `hive`.
 
 ## Tooling & SDK
-- **FVM**: Flutter SDK version managed via FVM (`.fvmrc` specifies `3.24.3`).
+- **FVM**: Flutter SDK version managed via FVM (`.fvmrc` specifies `3.47.5`).
 - **Command Prefix**: Always prefix Flutter/Dart CLI commands with `fvm` (e.g., `fvm flutter test`).
 
 ## Key Commands

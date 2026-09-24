@@ -25,17 +25,16 @@ class IO {
       );
 
       return await Mime.changeExtensionFile(savePath);
+    } on DioException catch (e) {
+      throw Exception(e.message ?? 'Dio error occurred');
     } catch (e) {
-      if (e.toString().contains('DioError')) {
-        throw e.toString().replaceAll(RegExp(r'^[^_]*]:\s'), '');
-      }
       throw Exception('Error parsing asset file!');
     }
   }
 
   /// Path to the temporary directory on the device that is not backed up and is
   /// suitable for storing caches of downloaded files.
-  static Future<String> getFilePath(uniqueFileName) async {
+  static Future<String> getFilePath(String uniqueFileName) async {
     final directory = await getTemporaryDirectory();
 
     return '${directory.path}/$uniqueFileName';

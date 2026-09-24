@@ -11,7 +11,21 @@ class Mime {
   /// the default extension map.
   static Future<String> changeExtensionFile(String tmpPathFile) async {
     File data = File(tmpPathFile);
-    final mime = lookupMimeType('temp', headerBytes: await data.readAsBytes());
+
+    // Read only first 1024 bytes to inspect header without loading whole file into memory
+    List<int> headerBytes = [];
+    try {
+      final stream = data.openRead(0, 1024);
+      await for (var chunk in stream) {
+        headerBytes.addAll(chunk);
+        if (headerBytes.length >= 1024) {
+          headerBytes = headerBytes.sublist(0, 1024);
+          break;
+        }
+      }
+    } catch (_) {}
+
+    final mime = lookupMimeType('temp', headerBytes: headerBytes.isNotEmpty ? headerBytes : null);
     final ext = _getExtensionsFromType(mime);
     if (ext != null) {
       String dir = path.dirname(data.path);

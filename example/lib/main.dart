@@ -1,179 +1,44 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
-import 'package:network_file_cached/network_file_cacher.dart';
+import 'package:network_file_cacher/network_file_cacher.dart';
 
 void main() async {
-  await NetworkFileCached.init();
-
-  runApp(
-    const MaterialApp(
-      home: FileCache(),
-    ),
-  );
+  WidgetsFlutterBinding.ensureInitialized();
+  await NetworkFileCacher.init(expired: const Duration(hours: 1));
+  runApp(const MyApp());
 }
 
-class FileCache extends StatelessWidget {
-  const FileCache({super.key});
-
-  final String url =
-      'https://www.learningcontainer.com/wp-content/uploads/2019/09/sample-pdf-with-images.pdf';
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Plugin example apps'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FileCacheSample(url: url),
-                  ),
-                );
-              },
-              child: const Text('Sample PDF View'),
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Network File Cached Example')),
+        body: Center(
+          child: FutureBuilder<File>(
+            future: NetworkFileCacher.downloadFile(
+              'https://picsum.photos/200/300',
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FileCacheLoadingIndicator(url: url),
-                  ),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator();
+              }
+              if (snapshot.hasError) {
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text('Error: ${snapshot.error}'),
                 );
-              },
-              child: const Text('PDF View With Loading Indicator'),
-            )
-          ],
+              }
+              if (snapshot.hasData) {
+                return Image.file(snapshot.data!);
+              }
+              return const Text('No Data');
+            },
+          ),
         ),
       ),
     );
-  }
-}
-
-class FileCacheSample extends StatefulWidget {
-  const FileCacheSample({super.key, required this.url});
-
-  final String url;
-
-  @override
-  State<FileCacheSample> createState() => _FileCacheSampleState();
-}
-
-class _FileCacheSampleState extends State<FileCacheSample> {
-  Future<File>? file;
-
-  @override
-  void initState() {
-    super.initState();
-    file = getFile();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Plugin example apps'),
-      ),
-      body: FutureBuilder(
-        future: file,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return PDFView(
-              pdfData: snapshot.data?.readAsBytesSync(),
-            );
-          }
-          if (snapshot.hasError) {
-            return Text(snapshot.error.toString());
-          }
-          return const Text('LOADING...');
-        },
-      ),
-    );
-  }
-
-  Future<File> getFile() {
-    return NetworkFileCached.downloadFile(widget.url);
-  }
-}
-
-class FileCacheLoadingIndicator extends StatefulWidget {
-  const FileCacheLoadingIndicator({super.key, required this.url});
-
-  final String url;
-
-  @override
-  State<FileCacheLoadingIndicator> createState() =>
-      _FileCacheLoadingIndicatorState();
-}
-
-class _FileCacheLoadingIndicatorState extends State<FileCacheLoadingIndicator> {
-  bool downloading = false;
-  double progress = 0;
-  bool isDownloaded = false;
-  File? file;
-  String errorMessage = '';
-
-  @override
-  void initState() {
-    load(widget.url);
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Plugin example apps'),
-      ),
-      body: errorMessage.isNotEmpty
-          ? Center(
-              child: Text(errorMessage),
-            )
-          : file == null
-              ? Center(
-                  child: Stack(
-                    alignment: AlignmentDirectional.center,
-                    children: [
-                      CircularProgressIndicator(
-                        value: (progress == 0) ? null : progress / 100,
-                      ),
-                      if (progress != 0)
-                        Text(
-                          progress.toStringAsFixed(0),
-                          style: const TextStyle(fontSize: 12),
-                        )
-                    ],
-                  ),
-                )
-              : PDFView(
-                  pdfData: file!.readAsBytesSync(),
-                ),
-    );
-  }
-
-  Future<void> load(String url) async {
-    await NetworkFileCached.downloadFile(url, onReceiveProgress: (rcv, total) {
-      setState(() {
-        progress = ((rcv / total) * 100);
-      });
-    }).then((value) {
-      setState(() {
-        file = value;
-      });
-    }).onError((error, stackTrace) {
-      setState(() {
-        errorMessage = error.toString();
-      });
-      throw Exception(error);
-    });
   }
 }

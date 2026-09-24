@@ -1,3 +1,5 @@
+library;
+
 /// Database for all the extensions
 
 const Map<String, String> database = {
